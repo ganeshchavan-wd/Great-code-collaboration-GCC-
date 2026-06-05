@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import API from "../services/api";
 
 export default function Dashboard() {
@@ -7,17 +8,15 @@ export default function Dashboard() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  console.log("USER =", user);
-
   useEffect(() => {
-    if (user && user._id) {
+    if (user && user.id) {
       fetchProjects();
     }
   }, []);
 
   const fetchProjects = async () => {
     try {
-      const res = await API.get(`/projects/${user._id}`);
+      const res = await API.get(`/projects/${user.id}`);
       setProjects(res.data);
     } catch (error) {
       console.log(error);
@@ -25,16 +24,25 @@ export default function Dashboard() {
   };
 
   const createProject = async () => {
+    if (!projectName.trim()) {
+      alert("Enter project name");
+      return;
+    }
+
     try {
       await API.post("/projects/create", {
         name: projectName,
-        ownerId: user._id,
+        ownerId: user.id,
       });
 
-      alert("Project Created");
+      setProjectName("");
+
+      alert("Project Created Successfully");
+
       fetchProjects();
     } catch (error) {
       console.log(error);
+      alert("Failed to create project");
     }
   };
 
@@ -47,24 +55,48 @@ export default function Dashboard() {
         padding: "30px",
       }}
     >
-      <h1>GCC Dashboard</h1>
-
-      <h3>User Data</h3>
-
-      <pre>
-        {JSON.stringify(user, null, 2)}
-      </pre>
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "20px",
+        }}
+      >
+        GCC Dashboard
+      </h1>
 
       <div
         style={{
-          marginTop: "20px",
+          textAlign: "center",
+          marginBottom: "30px",
+        }}
+      >
+        <h2>Welcome, {user.name} 👋</h2>
+
+        <p
+          style={{
+            color: "#94A3B8",
+          }}
+        >
+          {user.email}
+        </p>
+      </div>
+
+      <div
+        style={{
           background: "#1E293B",
           padding: "20px",
           borderRadius: "10px",
-          maxWidth: "500px",
+          maxWidth: "600px",
+          margin: "auto",
         }}
       >
-        <h2>Create Project</h2>
+        <h2
+          style={{
+            textAlign: "center",
+          }}
+        >
+          Create Project
+        </h2>
 
         <input
           type="text"
@@ -75,31 +107,74 @@ export default function Dashboard() {
           }
           style={{
             width: "100%",
-            padding: "10px",
-            marginBottom: "10px",
+            padding: "12px",
+            marginTop: "15px",
+            marginBottom: "15px",
+            borderRadius: "8px",
+            border: "none",
           }}
         />
 
-        <button onClick={createProject}>
+        <button
+          onClick={createProject}
+          style={{
+            width: "100%",
+            padding: "12px",
+            background: "#38BDF8",
+            border: "none",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
           Create Project
         </button>
       </div>
 
-      <div style={{ marginTop: "30px" }}>
-        <h2>Projects</h2>
+      <div
+        style={{
+          marginTop: "40px",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+          }}
+        >
+          My Projects
+        </h2>
 
-        {projects.map((project) => (
-          <div
-            key={project._id}
+        {projects.length === 0 ? (
+          <p
             style={{
-              background: "#1E293B",
-              padding: "15px",
-              marginTop: "10px",
+              textAlign: "center",
             }}
           >
-            {project.name}
-          </div>
-        ))}
+            No Projects Yet
+          </p>
+        ) : (
+          projects.map((project) => (
+            <Link
+              key={project._id}
+              to={`/project/${project._id}`}
+              style={{
+                textDecoration: "none",
+                color: "white",
+              }}
+            >
+              <div
+                style={{
+                  background: "#1E293B",
+                  padding: "15px",
+                  marginTop: "15px",
+                  borderRadius: "8px",
+                }}
+              >
+                📁 {project.name}
+              </div>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ const projectRoutes = require("./routes/projectRoutes");
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT"],
   },
 });
 
@@ -28,34 +28,62 @@ app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/code", codeRoutes);
 
+/* ======================
+   Socket.IO
+====================== */
+
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("User Connected:", socket.id);
 
   socket.on("join-file", (fileId) => {
     socket.join(fileId);
-    console.log("Joined file:", fileId);
+    console.log(`Joined Room: ${fileId}`);
   });
 
-  socket.on("code-change", ({ fileId, content }) => {
-    socket.to(fileId).emit("receive-code", content);
+  socket.on("code-change", (data) => {
+    socket.to(data.fileId).emit(
+      "receive-code",
+      data.content
+    );
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log(
+      "User Disconnected:",
+      socket.id
+    );
   });
 });
+
+/* ======================
+   Routes
+====================== */
 
 app.get("/", (req, res) => {
   res.send("GCC Backend Running 🚀");
 });
 
+/* ======================
+   MongoDB
+====================== */
+
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .then(() =>
+    console.log("MongoDB Connected")
+  )
+  .catch((err) =>
+    console.log("MongoDB Error:", err)
+  );
+
+/* ======================
+   Server
+====================== */
 
 const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Server running on port ${PORT}`
+  );
 });
