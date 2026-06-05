@@ -1,0 +1,160 @@
+.project-container{
+  display:flex;
+  height:100vh;
+  background:#020617;
+  color:white;
+  overflow:hidden;
+}
+
+.project-sidebar{
+  width:280px;
+  background:rgba(15,23,42,.95);
+  border-right:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(20px);
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+}
+
+.project-logo{
+  font-size:28px;
+  font-weight:800;
+  margin-bottom:25px;
+}
+
+.add-file-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  color:white;
+  font-weight:600;
+  margin-bottom:20px;
+  background:linear-gradient(
+    135deg,
+    #2563eb,
+    #8b5cf6
+  );
+}
+
+.file-item{
+  padding:14px;
+  border-radius:14px;
+  cursor:pointer;
+  margin-bottom:8px;
+  transition:.3s;
+}
+
+.file-item:hover{
+  background:rgba(255,255,255,.08);
+}
+
+.file-item.active{
+  background:linear-gradient(
+    135deg,
+    #2563eb33,
+    #8b5cf633
+  );
+}
+
+.editor-section{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.editor-topbar{
+  height:75px;
+  background:rgba(15,23,42,.95);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 25px;
+}
+
+.editor-topbar h3{
+  margin:0;
+  font-size:20px;
+}
+
+.action-group{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.invite-input{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#1e293b;
+  color:white;
+}
+
+.action-btn{
+  border:none;
+  padding:12px 18px;
+  border-radius:12px;
+  cursor:pointer;
+  color:white;
+  font-weight:600;
+  transition:.3s;
+}
+
+.invite-btn{
+  background:#f59e0b;
+}
+
+.run-btn{
+  background:#22c55e;
+}
+
+.save-btn{
+  background:#38bdf8;
+}
+
+.action-btn:hover{
+  transform:translateY(-3px);
+}
+
+.editor-wrapper{
+  flex:1;
+}
+
+.console{
+  height:220px;
+  background:#0f172a;
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:20px;
+  overflow:auto;
+}
+
+.console h3{
+  margin-bottom:10px;
+  color:#22c55e;
+}
+
+.console pre{
+  color:#22c55e;
+}
+
+@media(max-width:1000px){
+
+  .project-container{
+    flex-direction:column;
+  }
+
+  .project-sidebar{
+    width:100%;
+    height:auto;
+  }
+
+  .editor-topbar{
+    flex-direction:column;
+    gap:15px;
+    padding:15px;
+    height:auto;
+  }
+}

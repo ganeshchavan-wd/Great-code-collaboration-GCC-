@@ -3,9 +3,15 @@ import { useParams } from "react-router-dom";
 import API from "../services/api";
 import Editor from "@monaco-editor/react";
 import socket from "../services/socket";
+import "../styles/project.css";
 
 export default function Project() {
   const { id } = useParams();
+  const [history, setHistory] = useState([]);
+
+  const user = JSON.parse(
+  localStorage.getItem("user")
+);
 
   const [project, setProject] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,6 +36,7 @@ export default function Project() {
       const res = await API.get(`/projects/project/${id}`);
 
       setProject(res.data);
+setHistory(res.data.history || []);
 
       if (res.data.files?.length > 0) {
         setSelectedFile(res.data.files[0]);
@@ -46,11 +53,12 @@ export default function Project() {
     if (!fileName) return;
 
     try {
-      await API.post("/projects/add-file", {
-        projectId: id,
-        name: fileName,
-        type: "file",
-      });
+     await API.post("/projects/add-file", {
+  projectId: id,
+  name: fileName,
+  type: "file",
+  userName: user?.name,
+});
 
       loadProject();
     } catch (err) {
@@ -58,22 +66,59 @@ export default function Project() {
     }
   };
 
-  const saveFile = async () => {
-    if (!selectedFile) return;
+ 
+   const saveFile = async () => {
+  if (!selectedFile) return;
 
-    try {
-      await API.put("/projects/update-file", {
-        projectId: id,
-        fileName: selectedFile.name,
-        content: code,
-      });
+  try {
+   await API.put("/projects/update-file", {
+  projectId: id,
+  fileName: selectedFile.name,
+  content: code,
+  userName: user?.name,
+});
 
-      alert("File Saved Successfully");
-    } catch (err) {
-      console.log(err);
+   loadProject();
+alert("File Saved Successfully");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const deleteFile = async (fileName) => {
+  const confirmDelete = window.confirm(
+    `Delete ${fileName}?`
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+   await API.delete(
+  "/projects/delete-file",
+  {
+    data: {
+      projectId: id,
+      fileName,
+      userName: user?.name,
+    },
+  }
+);
+
+    if (
+      selectedFile?.name === fileName
+    ) {
+      setSelectedFile(null);
+      setCode("");
     }
-  };
 
+    loadProject();
+
+    alert("File deleted successfully");
+  } catch (err) {
+    console.log(err);
+    alert("Failed to delete file");
+  }
+};
   const inviteMember = async () => {
     if (!inviteEmail.trim()) {
       alert("Enter email");
@@ -82,10 +127,10 @@ export default function Project() {
 
     try {
       const res = await API.post("/projects/invite", {
-        projectId: id,
-        email: inviteEmail,
-      });
-
+  projectId: id,
+  email: inviteEmail,
+  userName: user?.name,
+});
       alert(res.data.message);
       setInviteEmail("");
     } catch (error) {
@@ -165,40 +210,76 @@ export default function Project() {
           Add File
         </button>
 
-        {project?.files?.map((file) => (
-          <div
-            key={file.name}
-           onClick={() => {
-  setSelectedFile(file);
-  setCode(file.content || "");
+      {project?.files?.map((file) => (
+  <div
+    key={file.name}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px",
+      marginBottom: "8px",
+      borderRadius: "8px",
+      background:
+        selectedFile?.name === file.name
+          ? "#334155"
+          : "transparent",
+    }}
+  >
+    <div
+      onClick={() => {
+        setSelectedFile(file);
+        setCode(file.content || "");
 
-  socket.emit("join-file", file.name);
-}}
-            style={{
-              padding: "10px",
-              cursor: "pointer",
-              borderRadius: "5px",
-              marginBottom: "5px",
-              background:
-                selectedFile?.name === file.name
-                  ? "#334155"
-                  : "transparent",
-            }}
-          >
-            📄 {file.name}
-          </div>
-        ))}
+        socket.emit(
+          "join-file",
+          file.name
+        );
+      }}
+      style={{
+        flex: 1,
+        cursor: "pointer",
+      }}
+    >
+      📄 {file.name}
+    </div>
+
+    <button
+      onClick={() =>
+        deleteFile(file.name)
+      }
+      style={{
+        background: "#ef4444",
+        border: "none",
+        color: "white",
+        borderRadius: "6px",
+        padding: "5px 8px",
+        cursor: "pointer",
+      }}
+    >
+      🗑
+    </button>
+  </div>
+))}
       </div>
 
       {/* Editor */}
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+  <div
+  style={{
+    flex: 1,
+    display: "flex",
+    height: "100%",
+  }}
+>
+  <div
+    style={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+    }}
+  
+>
         {/* Top Bar */}
 
         <div
@@ -319,9 +400,82 @@ onChange={(value) => {
         >
           <h3>🖥 Output Console</h3>
 
-          <pre>{output}</pre>
+        <pre>{output}</pre>
+</div>
+
+{/* Activity History Panel */}
+
+<div
+  style={{
+    width: "320px",
+    background: "#111827",
+    borderLeft: "1px solid #334155",
+    color: "white",
+    overflowY: "auto",
+    padding: "20px",
+  }}
+>
+  <h2
+    style={{
+      marginBottom: "20px",
+      color: "#38BDF8",
+    }}
+  >
+    📜 Activity History
+  </h2>
+
+  {history.length === 0 ? (
+    <p>No activity yet</p>
+  ) : (
+    history
+      .slice()
+      .reverse()
+      .map((item, index) => (
+        <div
+          key={index}
+          style={{
+            padding: "12px",
+            marginBottom: "12px",
+            borderRadius: "12px",
+            background: "#1E293B",
+            border: "1px solid #334155",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: "bold",
+              color: "#60A5FA",
+            }}
+          >
+            {item.userName}
+          </div>
+
+          <div style={{ marginTop: "5px" }}>
+            {item.action}
+          </div>
+
+          <div
+            style={{
+              color: "#94A3B8",
+              fontSize: "12px",
+              marginTop: "5px",
+            }}
+          >
+            {item.fileName}
+          </div>
+
+          <div
+            style={{
+              color: "#64748B",
+              fontSize: "11px",
+              marginTop: "6px",
+            }}
+          >
+            {new Date(
+              item.timestamp
+            ).toLocaleString()}
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      ))
+  )}
+</div>

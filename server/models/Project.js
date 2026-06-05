@@ -20,6 +20,28 @@ const fileSchema = new mongoose.Schema({
   children: [this],
 });
 
+const historySchema = new mongoose.Schema({
+  fileName: {
+    type: String,
+    required: true,
+  },
+
+  userName: {
+    type: String,
+    required: true,
+  },
+
+  action: {
+    type: String,
+    required: true,
+  },
+
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const projectSchema = new mongoose.Schema(
   {
     name: {
@@ -40,10 +62,15 @@ const projectSchema = new mongoose.Schema(
     ],
 
     files: [fileSchema],
+
+    history: [historySchema], // ← NEW
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Project", projectSchema);
+module.exports = mongoose.model(
+  "Project",
+  projectSchema
+);
