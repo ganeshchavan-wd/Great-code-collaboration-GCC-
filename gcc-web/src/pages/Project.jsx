@@ -174,10 +174,11 @@ export default function Project() {
 
     try {
       const res = await API.post("/projects/invite", {
-        projectId: id,
-        email: inviteEmail,
-        userName: user?.name,
-      });
+  projectId: id,
+  email: inviteEmail,
+  role: memberRole,
+  userName: user?.name,
+});
       alert(res.data.message);
       setInviteEmail("");
     } catch (error) {
