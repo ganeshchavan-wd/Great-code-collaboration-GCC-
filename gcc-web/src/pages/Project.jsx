@@ -190,6 +190,7 @@ export default function Project() {
 
   const runCode = async () => {
   try {
+    console.log("CODE SENT:", code);
     if (!selectedFile) return;
 
     let language = "javascript";
@@ -469,7 +470,7 @@ export default function Project() {
           {/* Monaco Editor */}
 
           <div style={{ flex: 1 }}>
-            <Editor
+         <Editor
   height="100%"
   theme="vs-dark"
   language={
@@ -481,7 +482,18 @@ export default function Project() {
       ? "java"
       : "javascript"
   }
-            />
+  value={code}
+  onChange={(value) => {
+    setCode(value || "");
+
+    if (selectedFile) {
+      socket.emit("send-code", {
+        room: selectedFile.name,
+        code: value || "",
+      });
+    }
+  }}
+/>
           </div>
 
           {/* Output Console */}
