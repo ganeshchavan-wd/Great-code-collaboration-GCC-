@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const socket = io(
-  "https://gcc-backend.onrender.com"
+  "https://great-code-collaboration-gcc.onrender.com"
 );
 
 export default socket;
