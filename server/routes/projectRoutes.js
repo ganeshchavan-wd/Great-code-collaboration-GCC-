@@ -9,6 +9,7 @@ const {
   updateFileContent,
   inviteMember,
   deleteFile,
+  rollbackFile,
 } = require("../controllers/projectController");
 
 router.post("/create", createProject);
@@ -21,8 +22,10 @@ router.post("/add-file", addFile);
 
 router.put("/update-file", updateFileContent);
 
-router.post("/invite", inviteMember);
-
 router.delete("/delete-file", deleteFile);
+
+router.post("/rollback-file", rollbackFile);
+
+router.post("/invite", inviteMember);
 
 module.exports = router;

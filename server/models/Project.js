@@ -41,7 +41,15 @@ const historySchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
+const versionSchema = new mongoose.Schema({
+  fileName: String,
+  content: String,
+  userName: String,
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+});
 const projectSchema = new mongoose.Schema(
   {
     name: {
@@ -63,7 +71,9 @@ const projectSchema = new mongoose.Schema(
 
     files: [fileSchema],
 
-    history: [historySchema], // ← NEW
+    history: [historySchema],
+
+    versions: [versionSchema],
   },
   {
     timestamps: true,

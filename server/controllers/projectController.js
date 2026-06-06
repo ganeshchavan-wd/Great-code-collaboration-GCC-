@@ -117,17 +117,33 @@ const updateFileContent = async (
       });
     }
 
-    file.content = content;
 
-    project.history.push({
-      fileName,
-      userName:
-        userName || "Unknown User",
-      action: "Saved File",
-      timestamp: new Date(),
-    });
+    project.versions.push({
+  fileName,
+  content: file.content,
+  userName:
+    userName || "Unknown User",
+});
 
-    await project.save();
+file.content = content;
+
+   project.history.push({
+  fileName,
+  userName:
+    userName || "Unknown User",
+  action: "Saved File",
+  timestamp: new Date(),
+});
+
+console.log("Saving History...");
+console.log(userName);
+
+console.log(project.history);
+
+console.log("VERSIONS:");
+console.log(project.versions);
+
+await project.save();
 
     res.json(project);
   } catch (error) {
@@ -184,15 +200,66 @@ const deleteFile = async (
   }
 };
 
-const inviteMember = async (
+const rollbackFile = async (
   req,
   res
 ) => {
   try {
     const {
       projectId,
-      email,
+      fileName,
+      versionId,
     } = req.body;
+
+    const project =
+      await Project.findById(projectId);
+
+    const version =
+      project.versions.id(versionId);
+
+    const file =
+      project.files.find(
+        (f) => f.name === fileName
+      );
+
+    if (!version || !file) {
+      return res.status(404).json({
+        message: "Not found",
+      });
+    }
+
+    file.content =
+      version.content;
+
+    project.history.push({
+      fileName,
+      userName: "Rollback",
+      action: "Rolled Back File",
+      timestamp: new Date(),
+    });
+
+    await project.save();
+
+    res.json(file);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+
+
+const inviteMember = async (
+  req,
+  res
+) => {
+  try {
+   const {
+  projectId,
+  email,
+  role,
+} = req.body;
 
     const user =
       await User.findOne({
@@ -216,7 +283,10 @@ const inviteMember = async (
       );
 
     if (!alreadyMember) {
-      project.members.push(user._id);
+      project.members.push({
+  user: user._id,
+  role: role || "Viewer",
+});
 
       project.history.push({
         fileName: "-",
@@ -246,5 +316,6 @@ module.exports = {
   addFile,
   updateFileContent,
   deleteFile,
+  rollbackFile,
   inviteMember,
 };
