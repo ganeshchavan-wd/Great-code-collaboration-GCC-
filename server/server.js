@@ -16,16 +16,25 @@ const projectRoutes = require("./routes/projectRoutes");
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST", "PUT"],
+    origin: [
+      "https://great-code-collaboration-gcc.vercel.app",
+      "http://localhost:5173",
+    ],
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+    ],
+    credentials: true,
   },
 });
 
 app.use(
   cors({
     origin: [
+      "https://great-code-collaboration-gcc.vercel.app",
       "http://localhost:5173",
-      "https://your-app-name.vercel.app",
     ],
     credentials: true,
   })
