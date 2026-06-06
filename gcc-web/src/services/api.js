@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export default axios.create({
-  baseURL:
-    "https://gcc-backend.onrender.com/api",
+const API = axios.create({
+  baseURL: "https://gcc-backend.onrender.com/api",
 });
+
+export default API;
