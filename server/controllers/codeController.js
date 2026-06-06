@@ -6,8 +6,12 @@ const runCode = async (req, res) => {
   try {
     const { language, code } = req.body;
 
-    let filePath = "";
-    let command = "";
+console.log("========== RUN CODE ==========");
+console.log("Language:", language);
+console.log("Code:", code);
+
+let filePath = "";
+let command = "";
 
     const path = require("path");
 
@@ -33,7 +37,8 @@ if (!fs.existsSync(tempDir)) {
         output: "Language not supported",
       });
     }
-
+console.log("File Path:", filePath);
+console.log("Command:", command);
     exec(command, (error, stdout, stderr) => {
       try {
         if (fs.existsSync(filePath)) {
@@ -45,11 +50,15 @@ if (!fs.existsSync(tempDir)) {
         }
       } catch {}
 
-      if (error) {
-        return res.json({
-          output: stderr || error.message,
-        });
-      }
+    console.log("ERROR:", error);
+console.log("STDOUT:", stdout);
+console.log("STDERR:", stderr);
+
+if (error) {
+  return res.json({
+    output: stderr || error.message,
+  });
+}
 
       res.json({
         output: stdout || stderr || "No Output",
