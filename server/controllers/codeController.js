@@ -9,15 +9,23 @@ const runCode = async (req, res) => {
     let filePath = "";
     let command = "";
 
+    const path = require("path");
+
+    const tempDir = path.join(process.cwd(), "temp");
+
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
+
     if (language === "python") {
-      filePath = path.join(__dirname, "temp.py");
+     filePath = path.join(tempDir, "temp.py");
       fs.writeFileSync(filePath, code);
       command = `python "${filePath}"`;
     } else if (
       language === "javascript" ||
       language === "js"
     ) {
-      filePath = path.join(__dirname, "temp.js");
+      filePath = path.join(tempDir, "temp.js");
       fs.writeFileSync(filePath, code);
       command = `node "${filePath}"`;
     } else {
@@ -29,7 +37,11 @@ const runCode = async (req, res) => {
     exec(command, (error, stdout, stderr) => {
       try {
         if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
+         setTimeout(() => {
+  try {
+    fs.unlinkSync(filePath);
+  } catch {}
+}, 5000);
         }
       } catch {}
 
