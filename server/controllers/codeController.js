@@ -1,33 +1,31 @@
-const fs = require("fs");
-const path = require("path");
-const { exec } = require("child_process");
-const { v4: uuidv4 } = require("uuid");
+const axios = require("axios");
 
 const runCode = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { language, code } = req.body;
 
-    const fileId = uuidv4();
-
-    const filePath = path.join(__dirname, `${fileId}.js`);
-
-    fs.writeFileSync(filePath, code);
-
-    exec(`node "${filePath}"`, (error, stdout, stderr) => {
-      fs.unlinkSync(filePath);
-
-      if (error) {
-        return res.json({
-          output: stderr || error.message,
-        });
+    const response = await axios.post(
+      "https://emkc.org/api/v2/piston/execute",
+      {
+        language,
+        version: "*",
+        files: [
+          {
+            content: code,
+          },
+        ],
       }
+    );
 
-      res.json({
-        output: stdout || "No output",
-      });
+    res.json({
+      output:
+        response.data.run?.output ||
+        response.data.run?.stderr ||
+        "No Output",
     });
-
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: error.message,
     });

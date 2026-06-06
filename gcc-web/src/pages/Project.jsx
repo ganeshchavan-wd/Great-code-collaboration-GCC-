@@ -188,40 +188,38 @@ export default function Project() {
     }
   };
 
-  const runCode = () => {
-    try {
-      if (
-        selectedFile &&
-        selectedFile.name.endsWith(".js")
-      ) {
-        let logs = [];
+  const runCode = async () => {
+  try {
+    if (!selectedFile) return;
 
-        const originalLog = console.log;
+    let language = "javascript";
 
-        console.log = (...args) => {
-          logs.push(args.join(" "));
-        };
-
-        const result = eval(code);
-
-        console.log = originalLog;
-
-        if (logs.length > 0) {
-          setOutput(logs.join("\n"));
-        } else if (result !== undefined) {
-          setOutput(String(result));
-        } else {
-          setOutput("Code Executed Successfully");
-        }
-      } else {
-        setOutput(
-          "Execution currently supported for JavaScript files only."
-        );
-      }
-    } catch (error) {
-      setOutput(error.message);
+    if (selectedFile.name.endsWith(".py")) {
+      language = "python";
+    } else if (
+      selectedFile.name.endsWith(".cpp")
+    ) {
+      language = "cpp";
+    } else if (
+      selectedFile.name.endsWith(".java")
+    ) {
+      language = "java";
     }
-  };
+
+    const res = await API.post(
+      "/code/run",
+      {
+        language,
+        code,
+      }
+    );
+
+    setOutput(res.data.output);
+  } catch (error) {
+    console.log(error);
+    setOutput("Execution Failed");
+  }
+};
 
   return (
 
@@ -472,22 +470,17 @@ export default function Project() {
 
           <div style={{ flex: 1 }}>
             <Editor
-              height="100%"
-              theme="vs-dark"
-              language="javascript"
-              value={code}
-              onChange={(value) => {
-                const newCode = value || "";
-
-                setCode(newCode);
-
-                if (selectedFile) {
-                  socket.emit("code-change", {
-                    fileId: selectedFile.name,
-                    content: newCode,
-                  });
-                }
-              }}
+  height="100%"
+  theme="vs-dark"
+  language={
+    selectedFile?.name.endsWith(".py")
+      ? "python"
+      : selectedFile?.name.endsWith(".cpp")
+      ? "cpp"
+      : selectedFile?.name.endsWith(".java")
+      ? "java"
+      : "javascript"
+  }
             />
           </div>
 
