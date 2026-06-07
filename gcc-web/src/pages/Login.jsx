@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import "./Login.css"; // Make sure to import the CSS file
+import "./Login.css"; 
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function Login() {
   const loginUser = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(""); // Clear previous errors
+    setError(""); 
 
     try {
       const res = await API.post("/auth/login", { email, password });
@@ -34,7 +34,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         
-        {/* LEFT SIDE */}
+        {/* LEFT SIDE BRANDING */}
         <div className="login-left">
           <div className="logo-glow"></div>
           <div className="left-content">
@@ -53,13 +53,12 @@ export default function Login() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT SIDE FORM */}
         <div className="login-right">
           <form onSubmit={loginUser} className="login-form">
             <h2 className="form-title">Login</h2>
             <p className="form-subtitle">Access your GCC workspace</p>
 
-            {/* Inline Error Message */}
             {error && <div className="error-message">{error}</div>}
 
             <div className="input-group">
@@ -71,8 +70,7 @@ export default function Login() {
                 className="login-input"
                 required
               />
-              {/* Email Icon */}
-              <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
@@ -87,8 +85,7 @@ export default function Login() {
                 className="login-input"
                 required
               />
-              {/* Lock Icon */}
-              <svg className="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
@@ -106,7 +103,7 @@ export default function Login() {
             </button>
 
             <p className="login-footer">
-              Don't have an account?{" "}
+              Don't have an account?
               <Link to="/register" className="login-link">
                 Register
               </Link>
